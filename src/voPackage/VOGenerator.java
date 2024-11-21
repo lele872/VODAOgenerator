@@ -29,9 +29,9 @@ public class VOGenerator {
 
         String tableName = null;
 
-        if(clazz.isAnnotationPresent(Table.class)){
-            Table table = clazz.getAnnotation(Table.class);
-            tableName = table.value();
+        if(clazz.isAnnotationPresent(Entity.class)){
+            Entity entity = clazz.getAnnotation(Entity.class);
+            tableName = entity.value();
 
             if(tableName != null && !tableName.isEmpty()){
                 System.out.println("table name non null");
