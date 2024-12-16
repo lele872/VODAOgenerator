@@ -1040,6 +1040,6 @@ public class VOGenerator {
 
     private Connection getConnection() throws SQLException {
 
-        return DriverManager.getConnection("jdbc:oracle:thin:@10.11.0.11:1521:oracle19", "SNBC_NCBC", "SNBC_NCBC");
+        return DriverManager.getConnection("", "", "");
     }
 }
