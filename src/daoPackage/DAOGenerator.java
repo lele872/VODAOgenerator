@@ -1,21 +1,21 @@
 package daoPackage;
 
-import voPackage.Id;
+import exceptions.DAOException;
 import voPackage.VOGenerator;
 
-import java.lang.reflect.*;
-import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.sql.*;
+import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
-import java.util.Date;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.logging.Logger;
 
 public class DAOGenerator {
 
     protected Connection connection;
+
+    protected static final Logger logger = Logger.getLogger(DAOGenerator.class.getName());
 
     public DAOGenerator(Connection connection) {
         this.connection = connection;
@@ -45,7 +45,7 @@ public class DAOGenerator {
             }
 
         }catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException("ERROR GETTING ALL FIELDS " + e.getMessage());
         }
 
         return allFileds;
@@ -118,7 +118,7 @@ public class DAOGenerator {
                 }
             }
         }catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException("ERROR GETTING PK FIELDS " + e.getMessage());
         }
 
         return pkFields;
@@ -285,91 +285,141 @@ public class DAOGenerator {
         return getALlFieldName;
     }
 
-    public <T extends VOGenerator> T readByPrimaryKey(T voGenerator) {
+    public <T extends VOGenerator> T readByPrimaryKey(T voGenerator)throws DAOException {
 
         String sql = getReadByPrimaryKeyStatement(voGenerator);
         Field[] fields = voGenerator.getClass().getDeclaredFields();
 
+        Statement st = null;
+        ResultSet rs = null;
         try{
-            Statement st = connection.createStatement();
+            st = connection.createStatement();
 
-            ResultSet rs = st.executeQuery(sql);
+            logger.info("ValueObject: " + voGenerator.toString());
+            logger.info("Doing Read By Primary Key on table: " + getTableName(voGenerator));
+            logger.info("READ BY PRIMARY KEY STATEMENT: " + sql);
+            rs = st.executeQuery(sql);
 
             if(rs != null && rs.next()){
                 for (Field field : fields){
                     field.setAccessible(true);
                     field.set(voGenerator,rs.getObject(field.getName()));
                 }
-
-                connection.commit();
-                rs.close();
-                st.close();
             }
 
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (IllegalAccessException | IllegalArgumentException illEx){
+            throw new RuntimeException("GENERAL TECHNICAL ERROR " + illEx.getMessage());
+
+        }catch (SQLException e){
+            logger.info("ERROR IN TABLE " + getTableName(voGenerator));
+            throw new DAOException("EXCEPTION IS: " + e.getMessage());
+
+        }finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                    st.close();
+                }
+            } catch (SQLException e) {
+                logger.info("ERROR CLOSING RESOURCES " + e.getMessage());
+            }
         }
 
         return voGenerator;
     }
 
-    public int update(VOGenerator voGenerator) {
+    public int update(VOGenerator voGenerator)throws DAOException {
 
         String sql = getUpdateStatement(voGenerator);
 
         int rs = 0;
 
-        try{
-            Statement st = connection.createStatement();
+        Statement st = null;
 
+        try{
+            st = connection.createStatement();
+
+            logger.info("ValueObject: " + voGenerator.toString());
+            logger.info("Doing Update in table: " + getTableName(voGenerator));
+            logger.info("UPDATE STATEMENT: " + sql);
             rs = st.executeUpdate(sql);
 
-            connection.commit();
-            st.close();
+        }catch (SQLException e){
+            logger.info("ERROR IN TABLE " + getTableName(voGenerator));
+            throw new DAOException("EXCEPTION IS: " + e.getMessage());
 
-        }catch (Exception e){
-            e.printStackTrace();
+        }finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+            } catch (SQLException e) {
+                logger.info("ERROR CLOSING RESOURCES " + e.getMessage());
+            }
         }
 
         return rs;
     }
 
-    public int delete(VOGenerator voGenerator) {
+    public int delete(VOGenerator voGenerator)throws DAOException {
 
         String sql = getDeleteStatement(voGenerator);
         int rs = 0;
 
-        try{
-            Statement st = connection.createStatement();
+        Statement st = null;
 
+        try{
+            st = connection.createStatement();
+
+            logger.info("ValueObject: " + voGenerator.toString());
+            logger.info("Doing Delete in table: " + getTableName(voGenerator));
+            logger.info("DELETE STATEMENT: " + sql);
             rs = st.executeUpdate(sql);
 
-            connection.commit();
-            st.close();
+        }catch (SQLException e){
+            logger.info("ERROR IN TABLE " + getTableName(voGenerator));
+            throw new DAOException("EXCEPTION IS: " + e.getMessage());
 
-        }catch (Exception e){
-            e.printStackTrace();
+        }finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+            } catch (SQLException e) {
+                logger.info("ERROR CLOSING RESOURCES " + e.getMessage());
+            }
         }
 
         return rs;
     }
 
-    public int create(VOGenerator voGenerator){
+    public int create(VOGenerator voGenerator)throws DAOException{
 
         String sql = getInsertStatement(voGenerator);
         int rs = 0;
 
-        try{
-            Statement st = connection.createStatement();
+        Statement st = null;
 
+        try{
+            st = connection.createStatement();
+
+            logger.info("ValueObject: " + voGenerator.toString());
+            logger.info("Doing Insert in table: " + getTableName(voGenerator));
+            logger.info("INSERT STATEMENT: " + sql);
             rs = st.executeUpdate(sql);
 
-            connection.commit();
+        }catch (SQLException e){
+            logger.info("ERROR IN TABLE " + getTableName(voGenerator));
+            throw new DAOException("EXCEPTION IS: " + e.getMessage());
 
-            st.close();
-
-        }catch (Exception e){
-            e.printStackTrace();
+        }finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+            } catch (SQLException e) {
+                logger.info("ERROR CLOSING RESOURCES " + e.getMessage());
+            }
         }
 
         return rs;

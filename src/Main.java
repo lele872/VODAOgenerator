@@ -18,10 +18,7 @@ public class Main {
         //setting value with getter and setter
 
         DAOGenerator dao = new DAOGenerator(con);
-        dao.delete(vo);
-        dao.create(vo);
-        dao.readByPrimaryKey(vo);
-        dao.update(vo);
+        //make crud
     }
 
     public static Connection doConnection(){
