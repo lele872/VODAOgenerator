@@ -499,7 +499,6 @@ public class VOGenerator {
                                     logger.info("ADDING DEFAULT VALUE CONSTRAINT: " + addDefaultValue);
                                     st.executeUpdate(addDefaultValue);
                                 }
-                                //TODO sistemare il fatto che parte sempre la query che mette default null sempre
                             } else if(!isPk(fieldNameFromVO) && columnVODefaultValue.isEmpty() && !columnDBNotNull && !columnDBDefaultValue.isEmpty()){
                                 String dropDefaultValue = getDropDefaultValue(fieldNameDB, typeDB);
                                 logger.info("DROPPING DEFAULT VALUE CONSTRAINT: " + dropDefaultValue);

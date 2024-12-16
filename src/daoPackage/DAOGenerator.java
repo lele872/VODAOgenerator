@@ -1,6 +1,7 @@
 package daoPackage;
 
 import exceptions.DAOException;
+import voPackage.Id;
 import voPackage.VOGenerator;
 
 import java.lang.reflect.Field;
