@@ -1,4 +1,4 @@
-Necessità di un Generatore di DAO e VO
+Necessità di un Generatore di CRUD e VO (value object)
 Efficacia nella Gestione dei Dati: Utilizzando il pattern DAO, ho separato la logica di accesso ai dati dalla logica di business, migliorando la manutenibilità e la testabilità del codice.
 
 Automazione e Riutilizzo: Il generatore automatizza la creazione delle classi DAO e VO, riducendo il tempo di sviluppo e aumentando la coerenza del codice.
